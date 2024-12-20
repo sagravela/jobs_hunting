@@ -52,7 +52,7 @@ class RemoveDuplicatesPipeline:
         adapter = ItemAdapter(item)
         values = (adapter['title'], adapter['company'], adapter['place'])
         if values in self.offers_seen:
-            raise DropItem("Duplicated item found:")
+            raise DropItem("Job offer duplicated.")
         else:
             self.offers_seen.add(values)
             return item
