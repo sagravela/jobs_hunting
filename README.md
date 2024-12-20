@@ -9,27 +9,24 @@ python search_jobs.py --help
 
 Searching for jobs:
 ```bash
-python search_jobs.py --search search_term --location location --keywords keyword_0 keyword_1 ...
+python search_jobs.py --search search_term --location location
 ```
+Keywords could be supplied through a 'keywords.txt' file in the root of the project. Ensure that they are separated by new line character (\n).
 Where:
 - `--search_term` is the job title or keyword to search for.
 - `--location` is the location to search for the job.
-- `--keywords` (optional) is a list of additional keywords to filter the results by.
 
 Spider can be runned standalone by Scrapy CLI:
 ```bash
-scrapy crawl spider_name -a job=job_name -a location=location -O output_file.format
+scrapy crawl spider_name -a job=job_name -a location=location -O file_name.format
 ```
 This will run the spider scraping all the jobs without filtering.
 
 ### Filtering Notes
-The app filter by the search term and keywords (if they are provided) looking them up in the job title and description. If any of them matches, the job is considered relevant.  
-A recommendation of use is to **provide other names of the role (even translations) as keywords to filter the results**. For instance, searching for a `data scientist` in `spain`: 
-```bash
-python search_jobs.py -s 'data scientist' -l spain -k 'data science' 'ciencia de datos' 'científico de datos' 'machine learning' 'aprendizaje automático'
-```
+The app filter by the search term and keywords (if they are provided) looking them up in the job title. If any of them matches, the job is considered relevant.  
+A recommendation of use is to **provide other names of the role (even translations) as keywords to filter the results**.
 
-**NOTE**: The jobs offer are sorted by applicants number (ascending order) and posted date (descending order).
+>**NOTE**: The jobs offer are sorted by applicants number (ascending order) and posted date (descending order).
 
 ## Further Improvements
 - Add support for different job websites: this can be done adding new spiders by new web site and concatenating the results.
