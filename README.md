@@ -11,7 +11,9 @@ Searching for jobs:
 ```bash
 python search_jobs.py --search search_term --location location
 ```
-Keywords could be supplied through a 'keywords.txt' file in the root of the project. Ensure that they are separated by new line character (\n).
+> **Keywords** could be supplied through a 'keywords.txt' file in the root of the project, a sample format is attached. They are divided between keywords to be included and to be excluded in the job title.  
+Remember to write them one per line and they are considered case insensitive.  
+
 Where:
 - `--search_term` is the job title or keyword to search for.
 - `--location` is the location to search for the job.

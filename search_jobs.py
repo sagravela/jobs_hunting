@@ -54,7 +54,7 @@ class JobSearch:
         # Add more spiders ...
 
         # Start the crawler
-        # process.start()
+        process.start()
         
         # Read new jobs
         with open(self.jobs_path, 'r') as jobs_file:
@@ -67,10 +67,12 @@ class JobSearch:
             
             applied_jobs = [job for job in old_jobs if job['applied'] == 'Y']
             
+            # Save applied jobs to avoid reapplying
             with open(self.applied_path, 'a') as applied_file:
                 writer = csv.DictWriter(applied_file, fieldnames=self.applied_fields)
                 for job in applied_jobs:
                     writer.writerow(job)
+
             with open(self.applied_path, 'r') as applied_file:
                 full_applied_jobs = [
                     (job['title'], job['company'], job['place']) for job in list(csv.DictReader(applied_file, fieldnames=self.applied_fields))
