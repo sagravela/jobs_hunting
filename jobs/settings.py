@@ -13,7 +13,7 @@ SPIDER_MODULES = ["jobs.spiders"]
 NEWSPIDER_MODULE = "jobs.spiders"
 
 # Set logging level
-LOG_LEVEL = "INFO"
+LOG_LEVEL = "DEBUG"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -59,7 +59,8 @@ DOWNLOADER_MIDDLEWARES = {
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     "jobs.pipelines.RemoveDuplicatesPipeline": 100,
-    "jobs.pipelines.PostedAtToDatePipeline": 200
+    "jobs.pipelines.PostedAtToDatePipeline": 200,
+    "jobs.pipelines.SavingToSQLPipeline": 300
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

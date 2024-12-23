@@ -9,7 +9,7 @@ from itemadapter import ItemAdapter
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from scrapy.exceptions import DropItem
-
+import psycopg2
 
 class PostedAtToDatePipeline:
     """
@@ -56,3 +56,63 @@ class RemoveDuplicatesPipeline:
         else:
             self.offers_seen.add(values)
             return item
+
+
+class SavingToSQLPipeline:
+
+    def __init__(self):
+
+        # Connect to my database
+        self.conn = psycopg2.connect(
+            host = 'localhost',
+            user='scraper',
+            password='1234',
+            dbname = 'jobs'
+        )
+
+        ## Create cursor, used to execute commands
+        self.cur = self.conn.cursor()
+        
+        ## Create jobs table if none exists
+        self.cur.execute("""
+            CREATE TABLE IF NOT EXISTS jobs(
+            id SERIAL PRIMARY KEY,             -- Primary key for unique identification
+            applied BOOLEAN DEFAULT FALSE,     -- Flag to indicate if the job was applied to (it will be used later)
+            title VARCHAR(255) NOT NULL,       -- Job title
+            company VARCHAR(255) NOT NULL,     -- Company name
+            place VARCHAR(255) NOT NULL,       -- Job location
+            posted_at DATE NOT NULL,           -- Date when the job was posted
+            applicants INT DEFAULT 0,          -- Number of applicants
+            description TEXT,                  -- Job description
+            url VARCHAR(2083) NOT NULL        -- URL of the job listing
+            )"""
+        )
+
+
+    def process_item(self, item, spider):
+
+        ## Define insert statement
+        self.cur.execute("""
+                INSERT INTO jobs (title, company, place, posted_at, applicants, description, url) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (
+                item.get('title', None),        # Default to None if key doesn't exist
+                item.get('company', None), 
+                item.get('place', None), 
+                item.get('posted_at', None), 
+                item.get('applicants', 0),     # Default to 0 if 'applicants' is missing
+                item.get('description', None), 
+                item.get('url', None)
+            )
+        )
+
+
+        ## Execute insert of data into database
+        self.conn.commit()
+
+    
+    def close_spider(self, spider):
+
+        ## Close cursor & connection to database 
+        self.cur.close()
+        self.conn.close()
