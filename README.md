@@ -1,5 +1,5 @@
 # Job Scraper App
-The Job Scraper App is a tool designed to connect to various job websites and retrieve job offer information to further analysis and consumption. The app leverages the *Scrapy* framework to efficiently scrape job listings.
+The Job Scraper App is a tool designed to connect to various job websites and retrieve job offer information to further analysis and consumption. The app leverages the *Scrapy* framework to efficiently scrape job listings and save them to a PostgreSQL database to further consume data through SQL queries (for instance, filter and sort offers based on user requirements).
 
 ## Usage
 Help:
