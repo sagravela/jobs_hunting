@@ -5,7 +5,7 @@ import logging
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Filter jobs based on a role and optionally additional keywords given by 'keywords.txt' file.")
+    parser = argparse.ArgumentParser(description="Run the spiders scraping for jobs in each web site.")
     parser.add_argument('-s', '--search', type=str, required=True, help='Job search keyword')
     parser.add_argument('-l', '--location', type=str, required=True, help='Location to search jobs')
 

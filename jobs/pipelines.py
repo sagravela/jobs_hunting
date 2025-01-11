@@ -76,24 +76,19 @@ class SavingToSQLPipeline:
         ## Create jobs table if none exists
         self.cur.execute("""
             CREATE TABLE IF NOT EXISTS jobs(
-            id SERIAL PRIMARY KEY,               -- Primary key for unique identification
-            applied BOOLEAN DEFAULT FALSE,       -- Flag to indicate if the job was applied to (it will be used later)
-            title VARCHAR(255) NOT NULL,         -- Job title
-            company VARCHAR(255) NOT NULL,       -- Company name
-            place VARCHAR(255) NOT NULL,         -- Job location
-            posted_at DATE NOT NULL,             -- Date when the job was posted
-            applicants INT DEFAULT 0,            -- Number of applicants
-            description TEXT,                    -- Job description
-            url VARCHAR(2083) NOT NULL,          -- URL of the job listing
-            date_added DATE DEFAULT CURRENT_DATE -- Date when the job was added, default to current date
+            id SERIAL PRIMARY KEY,                               -- Primary key for unique identification
+            applied BOOLEAN DEFAULT FALSE,                       -- Flag to indicate if the job was applied to (it will be used later)
+            title VARCHAR(255) NOT NULL,                         -- Job title
+            company VARCHAR(255) NOT NULL,                       -- Company name
+            place VARCHAR(255) NOT NULL,                         -- Job location
+            posted_at DATE NOT NULL,                             -- Date when the job was posted
+            applicants INT DEFAULT 0,                            -- Number of applicants
+            description TEXT,                                    -- Job description
+            url VARCHAR(2083) NOT NULL,                          -- URL of the job listing
+            date_added DATE DEFAULT CURRENT_DATE,                -- Date when the job was added, default to current date
+            CONSTRAINT unique_job UNIQUE (title, company, place) -- Unique constraint for job identification
             )"""
         )
-
-        ## Add the unique contraint to the columns which identify each job as unique
-        self.cur.execute("""
-            ALTER TABLE jobs
-            ADD CONSTRAINT unique_job UNIQUE (title, company, place);
-        """)
         self.conn.commit()
 
 
