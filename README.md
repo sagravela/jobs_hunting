@@ -1,28 +1,21 @@
-# Job Scraper App
-The Job Scraper App is a tool designed to connect to various job websites and retrieve job offer information to further analysis and consumption. The app leverages the *Scrapy* framework to efficiently scrape job listings and save them to a PostgreSQL database to further consume data through SQL queries (for instance, filter and sort offers based on user requirements).
+# Job Hunting App
+
+The **Job Hunting App** is a powerful tool designed to simplify the job search process by connecting to popular job websites and retrieving relevant job listings for easy access and application.  
+The app uses the **Scrapy** framework to efficiently scrape job listings from publicly available websites with minimal protection. For more challenging sites, such as those protected by Cloudflare, the app utilizes the **Zendriver** package to automate browser interactions and bypass security measures.
+Scraped job data is stored in a local **PostgreSQL** database, making it available for easy consumption through the **Streamlit** web application.  
+With features like job filtering, sorting, and tracking previously viewed jobs, the app ensures you never apply for the same job twice. This streamlined process helps users save time and apply more effectively.
+
+> **Important**: Currently, the app is available for job searches only in **Argentina**. The location cannot be changed at this time due to differences in how job websites display listings based on geographic location.  
+> Future updates will focus on expanding support to allow job searches in other regions.
 
 ## Usage
-Help:
+First of all, scrape for jobs in websites pulling data with the following command:  
 ```bash
-python search_jobs.py --help
+./run_spiders.sh JOB
 ```
 
-Searching for jobs:
+After jobs are saved to the database, run the application: 
 ```bash
-python search_jobs.py --search search_term --location location
+./run_app.sh
 ```
-> The command above will run Scrapy with all the spiders already declared.
 
-Where:
-- `--search_term` is the job title or keyword to search for.
-- `--location` is the location to search for the job.
-
-Spider can be runned standalone by Scrapy CLI:
-```bash
-scrapy crawl spider_name -a job=job_name -a location=location -O file_name.format
-```
-This will run only the selected spider standalone.
-
-## Further Improvements
-- Add support for different job websites: this can be done adding new spiders by new web site and concatenating the results.
-- Improve performance: the app can scrape data faster by decreasing `DOWNLOAD_DELAY` and deactivating `AUTOTHROTTLE_ENABLED` but it will require more resources to avoid getting blocked by the website. For instance, including proxy services. 

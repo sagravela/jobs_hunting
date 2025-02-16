@@ -1,3 +1,10 @@
+python-dotenv
+pydantic
+SQLAlchemy
+pandas
+bs4
+glom
+psycopg2-binary
 scrapy
-scrapy-user-agents
-python-dateutil
+zendriver
+streamlit
