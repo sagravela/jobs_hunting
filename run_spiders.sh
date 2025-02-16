@@ -9,7 +9,7 @@ source .venv/bin/activate
 sudo service postgresql start
 
 # Run the automated browser with nodriver
-python nodriver_crawl/main.py -s "$JOB"
+python zendriver_crawl/main.py -s "$JOB"
 
 # Go to scrapy project folder
 cd scrapy_crawl/
