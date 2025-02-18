@@ -1,6 +1,8 @@
+from urllib3.util import parse_url
+
 import scrapy
 from scrapy.loader import ItemLoader
-from urllib3.util import parse_url
+
 from jobs_crawl.items import JobOffer
 
 
@@ -8,11 +10,11 @@ class LinkedinSpider(scrapy.Spider):
     name = "linkedin_spider"
     allowed_domains = ["linkedin.com"]
 
-    def __init__(self, job: str = None, *args, **kwargs):
+    def __init__(self, job: str = None, location: str = "argentina", *args, **kwargs):
         super(LinkedinSpider, self).__init__(*args, **kwargs)
 
         parsed_url = parse_url(
-            f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywordsc={job}&location=argentina&geoId=&trk=public_jobs_jobs-search-bar_search-submit&start="
+            f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords={job}&location={location}&geoId=&trk=public_jobs_jobs-search-bar_search-submit&start="
         )
         # Linkedin only show 10 offer per page and 1000 is the max limit of offers displayed
         self.start_urls = [parsed_url.url + str(i) for i in range(0, 1000, 10)]

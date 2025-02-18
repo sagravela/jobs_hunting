@@ -1,24 +1,38 @@
 import re
-import logging
 import json
 from datetime import datetime, UTC
 
 from glom import glom
 
-from db_model import Job
+from utils import logging
+from db_model import setup_db, save_to_db, Job
 
+async def indeed(browser, job: str) -> None:
+    """Scrape data from *Indeed* website"""
+    logging.info("Connecting to database.")
+    conn, cur = setup_db()
 
-async def get_indeed(browser, job: str):
     logging.info("Requesting Indeed.")
     # Indeed page
     url = f"https://ar.indeed.com/q-{job}-l-argentina-empleos.html"
     logging.info(f"Starting at {url}.")
     indeed = await browser.get(url, new_tab=True)
-    await indeed.sleep(5)
-    offers = []
+    await indeed.sleep(
+        15
+    )  # Add time to manually click the cloudfare captcha if it appears (only in headless mode disabled)
 
+    # Paginate while scraping jobs data
+    offers_number = 0
     while True:
-        elem = await indeed.wait_for("#mosaic-data", timeout=60)
+        await indeed.wait(10)
+        try:
+            # Look for the json data
+            elem = await indeed.wait_for("script#mosaic-data", timeout=60)
+        except TimeoutError:
+            logging.warning("Timeout reached looking for json data.")
+            break
+
+        # Get json data
         elem_html = await elem.get_html()
         pattern = (
             r'window\.mosaic\.providerData\["mosaic-provider-jobcards"\]=(\{.*?\});'
@@ -28,6 +42,7 @@ async def get_indeed(browser, job: str):
             continue
         json_data = json.loads(str_json.group(1))
         results = glom(json_data, "metaData.mosaicProviderJobCardsModel.results")
+        offers = []
         for r in results:
             data = {
                 "company": r["company"],
@@ -36,17 +51,22 @@ async def get_indeed(browser, job: str):
                 "posted_at": datetime.fromtimestamp(r["createDate"] / 1000, UTC).date(),
                 "link": "https://ar.indeed.com" + r["link"],
             }
+            # Check data type and save
             end_data = Job(**data).model_dump()
             offers.append(end_data)
-            if len(offers) % 50 == 0:
-                logging.info(f"Indeed offers scraped: {len(offers)}")
 
+        # Save to database
+        save_to_db(conn, cur, offers)
+        offers_number += len(offers)
+        logging.info(f"Offers scraped: {offers_number}.")
+
+        # Next page
         next_button = await indeed.query_selector(
             "a[data-testid='pagination-page-next']"
         )
         if not next_button:
+            logging.info("Finished.")
             break
-        await next_button.focus()
         await next_button.click()
-        await indeed.sleep(5)
-    return offers
+
+    logging.info("Closing spider.")

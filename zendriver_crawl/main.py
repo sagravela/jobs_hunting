@@ -1,41 +1,28 @@
 import asyncio
-import logging
 import argparse
 
 import zendriver as zd
 
-from db_model import setup_db, save_to_db
-from glassdoor_spider import get_glassdoor
-from indeed_spider import get_indeed
+from utils import logging
+from glassdoor_spider import glassdoor
+from indeed_spider import indeed
 
-
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
-
-async def main(job: str):
-    conn, cur = setup_db()
-    browser = await zd.start(headless=True)
+async def main(job: str) -> None:
+    """Run the spiders asynchronously."""
+    browser = await zd.start(
+        headless=False
+    )  # Enable headless mode if the website doesn't block you
     job = job.replace(" ", "-")
-    glassdoor_offers, indeed_offers = await asyncio.gather(
-        get_glassdoor(browser, job), get_indeed(browser, job)
-    )
-
-    logging.info(f"Glassdoor offers scraped: {len(glassdoor_offers)}.")
-    save_to_db(conn, cur, glassdoor_offers)
-    logging.info(f"Indeed offers scraped: {len(indeed_offers)}.")
-    save_to_db(conn, cur, indeed_offers)
-
-    browser.stop()
+    await asyncio.gather(glassdoor(browser, job), indeed(browser, job))
+    await browser.stop()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Run the spiders scraping for jobs in each web site."
+        description="Run the spiders scraping for jobs in each web site through an automated browser. Location is set to Argentina."
     )
     parser.add_argument(
-        "-s", "--search", type=str, default="data science", help="Job search keyword"
+        "-s", "--search", type=str, required= True, help="Job search keyword"
     )
     args = parser.parse_args()
     job = args.search

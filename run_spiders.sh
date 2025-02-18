@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JOB="${1:-'data science'}"
+JOB=${1:-'data science'}
 
 # Set up the env
 source .venv/bin/activate
@@ -15,5 +15,5 @@ python zendriver_crawl/main.py -s "$JOB"
 cd scrapy_crawl/
 
 # Run the Scrapy spiders
-scrapy crawl linkedin_spider -a job="$JOB"
 scrapy crawl trabajo_spider -a job="$JOB"
+scrapy crawl linkedin_spider -a job="$JOB"

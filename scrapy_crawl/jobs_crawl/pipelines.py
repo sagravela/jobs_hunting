@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 
 class PostedAtToDatePipeline:
     """
-    A pipeline that processes the 'posted_at' field of an item and converts it to a date.
+    A pipeline that processes the `posted_at` field of an item and converts it to a `datetime.date`.
     """
 
     def __init__(self):
@@ -36,6 +36,7 @@ class PostedAtToDatePipeline:
 
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
+        # Handle different date formats
         if spider.name == "linkedin_spider":
             adapter["posted_at"] = datetime.strptime(
                 adapter["posted_at"], "%Y-%m-%d"
@@ -84,6 +85,9 @@ class RemoveDuplicatesPipeline:
 
 
 class SavingToSQLPipeline:
+    """
+    A pipeline that saves items to a PostgreSQL database.
+    """
     def __init__(self):
         load_dotenv()
 
@@ -98,20 +102,20 @@ class SavingToSQLPipeline:
         # Connect to my database
         self.conn = psycopg2.connect(**PSQL_CONFIG)
 
-        ## Create cursor, used to execute commands
+        # Create cursor, used to execute commands
         self.cur = self.conn.cursor()
 
-        ## Create jobs table if none exists
+        # Create jobs table if none exists
         self.cur.execute(
             """
             CREATE TABLE IF NOT EXISTS jobs(
             id SERIAL PRIMARY KEY,                               -- Primary key for unique identification
             viwed BOOLEAN DEFAULT FALSE,                         -- Flag to indicate if the job was applied to (it will be used later)
             title VARCHAR(255) NOT NULL,                         -- Job title
-            company VARCHAR(255) NOT NULL,                       -- Company name
-            location VARCHAR(255) NOT NULL,                      -- Job location
-            posted_at DATE NOT NULL,                             -- Date when the job was posted
-            added_at DATE DEFAULT CURRENT_DATE,                   -- Date when the jobs was added to the database
+            company VARCHAR(255),                                -- Company name
+            location VARCHAR(255),                               -- Job location
+            posted_at DATE,                                      -- Date when the job was posted
+            added_at DATE DEFAULT CURRENT_DATE,                  -- Date when the jobs was added to the database
             url VARCHAR(2083) NOT NULL,                          -- URL of the job listing
             CONSTRAINT job UNIQUE (title, company, location)     -- Unique constraint for job identification
             )"""
@@ -119,7 +123,7 @@ class SavingToSQLPipeline:
         self.conn.commit()
 
     def process_item(self, item, spider):
-        ## Define insert statement
+        # Define insert statement
         self.cur.execute(
             """
             INSERT INTO jobs(title, company, location, posted_at, url) 
@@ -131,17 +135,17 @@ class SavingToSQLPipeline:
             """,
             (
                 item.get("title"),
-                item.get("company"),
-                item.get("location"),
-                item.get("posted_at"),
+                item.get("company", None),
+                item.get("location", None),
+                item.get("posted_at", None),
                 item.get("url"),
             ),
         )
 
-        ## Execute insert of data into database
+        # Execute insert of data into database
         self.conn.commit()
 
     def close_spider(self, spider):
-        ## Close cursor & connection to database
+        # Close cursor & connection to database
         self.cur.close()
         self.conn.close()

@@ -1,6 +1,7 @@
+from urllib3.util import parse_url
+
 import scrapy
 from scrapy.loader import ItemLoader
-from urllib3.util import parse_url
 
 from jobs_crawl.items import JobOffer
 
@@ -12,10 +13,9 @@ class TrabajoSpider(scrapy.Spider):
     def __init__(self, job: str = None, *args, **kwargs):
         super(TrabajoSpider, self).__init__(*args, **kwargs)
 
-        # Search job will be received from the command line
         parsed_url = parse_url(f"https://ar.trabajo.org/empleo-{job.replace(' ', '+')}")
         self.start_urls = [parsed_url.url]
-        self.logger.info("Starting url: {}0".format(parsed_url.url))
+        self.logger.info("Starting url: {}".format(parsed_url.url))
 
     def parse(self, response):
         for job in response.css("li.nf-job.list-group-item"):
