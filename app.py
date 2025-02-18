@@ -74,8 +74,8 @@ class App:
         """Fetch all data from the database"""
         query = """
             SELECT *  FROM jobs 
-            WHERE added_at = (SELECT MAX(added_at) FROM jobs)
-            ORDER BY posted_at DESC, id;"""  # Order by ID to ensure order consistency in equal dates
+            WHERE added_at > CURRENT_DATE - INTERVAL '7 day'  -- Keep only the jobs added along the last 7 days
+            ORDER BY added_at DESC, posted_at DESC, id;"""  # Order by ID to ensure order consistency in equal dates
         return pd.read_sql(query, self.engine)
 
     def filter_data(self, df: pd.DataFrame) -> pd.DataFrame:
